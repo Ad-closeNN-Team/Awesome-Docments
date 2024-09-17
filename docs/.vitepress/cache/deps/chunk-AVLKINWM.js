@@ -1,4 +1,4 @@
-// node_modules/.pnpm/@vue+shared@3.5.5/node_modules/@vue/shared/dist/shared.esm-bundler.js
+// node_modules/@vue/shared/dist/shared.esm-bundler.js
 function makeMap(str) {
   const map2 = /* @__PURE__ */ Object.create(null);
   for (const key of str.split(",")) map2[key] = 1;
@@ -198,6 +198,9 @@ var isKnownHtmlAttr = makeMap(
 var isKnownSvgAttr = makeMap(
   `xmlns,accent-height,accumulate,additive,alignment-baseline,alphabetic,amplitude,arabic-form,ascent,attributeName,attributeType,azimuth,baseFrequency,baseline-shift,baseProfile,bbox,begin,bias,by,calcMode,cap-height,class,clip,clipPathUnits,clip-path,clip-rule,color,color-interpolation,color-interpolation-filters,color-profile,color-rendering,contentScriptType,contentStyleType,crossorigin,cursor,cx,cy,d,decelerate,descent,diffuseConstant,direction,display,divisor,dominant-baseline,dur,dx,dy,edgeMode,elevation,enable-background,end,exponent,fill,fill-opacity,fill-rule,filter,filterRes,filterUnits,flood-color,flood-opacity,font-family,font-size,font-size-adjust,font-stretch,font-style,font-variant,font-weight,format,from,fr,fx,fy,g1,g2,glyph-name,glyph-orientation-horizontal,glyph-orientation-vertical,glyphRef,gradientTransform,gradientUnits,hanging,height,href,hreflang,horiz-adv-x,horiz-origin-x,id,ideographic,image-rendering,in,in2,intercept,k,k1,k2,k3,k4,kernelMatrix,kernelUnitLength,kerning,keyPoints,keySplines,keyTimes,lang,lengthAdjust,letter-spacing,lighting-color,limitingConeAngle,local,marker-end,marker-mid,marker-start,markerHeight,markerUnits,markerWidth,mask,maskContentUnits,maskUnits,mathematical,max,media,method,min,mode,name,numOctaves,offset,opacity,operator,order,orient,orientation,origin,overflow,overline-position,overline-thickness,panose-1,paint-order,path,pathLength,patternContentUnits,patternTransform,patternUnits,ping,pointer-events,points,pointsAtX,pointsAtY,pointsAtZ,preserveAlpha,preserveAspectRatio,primitiveUnits,r,radius,referrerPolicy,refX,refY,rel,rendering-intent,repeatCount,repeatDur,requiredExtensions,requiredFeatures,restart,result,rotate,rx,ry,scale,seed,shape-rendering,slope,spacing,specularConstant,specularExponent,speed,spreadMethod,startOffset,stdDeviation,stemh,stemv,stitchTiles,stop-color,stop-opacity,strikethrough-position,strikethrough-thickness,string,stroke,stroke-dasharray,stroke-dashoffset,stroke-linecap,stroke-linejoin,stroke-miterlimit,stroke-opacity,stroke-width,style,surfaceScale,systemLanguage,tabindex,tableValues,target,targetX,targetY,text-anchor,text-decoration,text-rendering,textLength,to,transform,transform-origin,type,u1,u2,underline-position,underline-thickness,unicode,unicode-bidi,unicode-range,units-per-em,v-alphabetic,v-hanging,v-ideographic,v-mathematical,values,vector-effect,version,vert-adv-y,vert-origin-x,vert-origin-y,viewBox,viewTarget,visibility,width,widths,word-spacing,writing-mode,x,x-height,x1,x2,xChannelSelector,xlink:actuate,xlink:arcrole,xlink:href,xlink:role,xlink:show,xlink:title,xlink:type,xmlns:xlink,xml:base,xml:lang,xml:space,y,y1,y2,yChannelSelector,z,zoomAndPan`
 );
+var isKnownMathMLAttr = makeMap(
+  `accent,accentunder,actiontype,align,alignmentscope,altimg,altimg-height,altimg-valign,altimg-width,alttext,bevelled,close,columnsalign,columnlines,columnspan,denomalign,depth,dir,display,displaystyle,encoding,equalcolumns,equalrows,fence,fontstyle,fontweight,form,frame,framespacing,groupalign,height,href,id,indentalign,indentalignfirst,indentalignlast,indentshift,indentshiftfirst,indentshiftlast,indextype,justify,largetop,largeop,lquote,lspace,mathbackground,mathcolor,mathsize,mathvariant,maxsize,minlabelspacing,mode,other,overflow,position,rowalign,rowlines,rowspan,rquote,rspace,scriptlevel,scriptminsize,scriptsizemultiplier,selection,separator,separators,shift,side,src,stackalign,stretchy,subscriptshift,superscriptshift,symmetric,voffset,width,widths,xlink:href,xlink:show,xlink:type,xmlns`
+);
 function isRenderableAttrValue(value) {
   if (value == null) {
     return false;
@@ -300,7 +303,7 @@ var stringifySymbol = (v, i = "") => {
   );
 };
 
-// node_modules/.pnpm/@vue+reactivity@3.5.5/node_modules/@vue/reactivity/dist/reactivity.esm-bundler.js
+// node_modules/@vue/reactivity/dist/reactivity.esm-bundler.js
 function warn(msg, ...args) {
   console.warn(`[Vue warn] ${msg}`, ...args);
 }
@@ -431,7 +434,7 @@ var ReactiveEffect = class {
     this.deps = void 0;
     this.depsTail = void 0;
     this.flags = 1 | 4;
-    this.nextEffect = void 0;
+    this.next = void 0;
     this.cleanup = void 0;
     this.scheduler = void 0;
     if (activeEffectScope && activeEffectScope.active) {
@@ -458,9 +461,7 @@ var ReactiveEffect = class {
       return;
     }
     if (!(this.flags & 8)) {
-      this.flags |= 8;
-      this.nextEffect = batchedEffect;
-      batchedEffect = this;
+      batch(this);
     }
   }
   run() {
@@ -521,7 +522,12 @@ var ReactiveEffect = class {
   }
 };
 var batchDepth = 0;
-var batchedEffect;
+var batchedSub;
+function batch(sub) {
+  sub.flags |= 8;
+  sub.next = batchedSub;
+  batchedSub = sub;
+}
 function startBatch() {
   batchDepth++;
 }
@@ -530,15 +536,16 @@ function endBatch() {
     return;
   }
   let error;
-  while (batchedEffect) {
-    let e = batchedEffect;
-    batchedEffect = void 0;
+  while (batchedSub) {
+    let e = batchedSub;
+    batchedSub = void 0;
     while (e) {
-      const next = e.nextEffect;
-      e.nextEffect = void 0;
+      const next = e.next;
+      e.next = void 0;
       e.flags &= ~8;
       if (e.flags & 1) {
         try {
+          ;
           e.trigger();
         } catch (err) {
           if (!error) error = err;
@@ -578,7 +585,7 @@ function cleanupDeps(sub) {
 }
 function isDirty(sub) {
   for (let link = sub.deps; link; link = link.nextDep) {
-    if (link.dep.version !== link.version || link.dep.computed && refreshComputed(link.dep.computed) || link.dep.version !== link.version) {
+    if (link.dep.version !== link.version || link.dep.computed && (refreshComputed(link.dep.computed) || link.dep.version !== link.version)) {
       return true;
     }
   }
@@ -598,7 +605,7 @@ function refreshComputed(computed3) {
   computed3.globalVersion = globalVersion;
   const dep = computed3.dep;
   computed3.flags |= 2;
-  if (dep.version > 0 && !computed3.isSSR && !isDirty(computed3)) {
+  if (dep.version > 0 && !computed3.isSSR && computed3.deps && !isDirty(computed3)) {
     computed3.flags &= ~2;
     return;
   }
@@ -786,7 +793,10 @@ var Dep = class {
         }
       }
       for (let link = this.subs; link; link = link.prevSub) {
-        link.sub.notify();
+        if (link.sub.notify()) {
+          ;
+          link.sub.dep.notify();
+        }
       }
     } finally {
       endBatch();
@@ -1835,8 +1845,10 @@ var ComputedRefImpl = class {
    */
   notify() {
     this.flags |= 16;
-    if (activeSub !== this) {
-      this.dep.notify();
+    if (!(this.flags & 8) && // avoid infinite self recursion
+    activeSub !== this) {
+      batch(this);
+      return true;
     } else if (true) ;
   }
   get value() {
@@ -1982,20 +1994,12 @@ function watch(source, cb, options = EMPTY_OBJ) {
       remove(scope.effects, effect2);
     }
   };
-  if (once) {
-    if (cb) {
-      const _cb = cb;
-      cb = (...args) => {
-        _cb(...args);
-        watchHandle();
-      };
-    } else {
-      const _getter = getter;
-      getter = () => {
-        _getter();
-        watchHandle();
-      };
-    }
+  if (once && cb) {
+    const _cb = cb;
+    cb = (...args) => {
+      _cb(...args);
+      watchHandle();
+    };
   }
   let oldValue = isMultiSource ? new Array(source.length).fill(INITIAL_WATCHER_VALUE) : INITIAL_WATCHER_VALUE;
   const job = (immediateFirstRun) => {
@@ -2100,7 +2104,7 @@ function traverse(value, depth = Infinity, seen) {
   return value;
 }
 
-// node_modules/.pnpm/@vue+runtime-core@3.5.5/node_modules/@vue/runtime-core/dist/runtime-core.esm-bundler.js
+// node_modules/@vue/runtime-core/dist/runtime-core.esm-bundler.js
 var stack = [];
 function pushWarningContext(vnode) {
   stack.push(vnode);
@@ -8217,11 +8221,12 @@ function doWatch(source, cb, options = EMPTY_OBJ) {
     } else if (!cb || immediate) {
       baseWatchOptions.once = true;
     } else {
-      return {
-        stop: NOOP,
-        resume: NOOP,
-        pause: NOOP
+      const watchStopHandle = () => {
       };
+      watchStopHandle.stop = NOOP;
+      watchStopHandle.resume = NOOP;
+      watchStopHandle.pause = NOOP;
+      return watchStopHandle;
     }
   }
   const instance = currentInstance;
@@ -10409,7 +10414,7 @@ function isMemoSame(cached, memo) {
   }
   return true;
 }
-var version = "3.5.5";
+var version = "3.5.6";
 var warn2 = true ? warn$1 : NOOP;
 var ErrorTypeStrings = ErrorTypeStrings$1;
 var devtools = true ? devtools$1 : void 0;
@@ -10431,7 +10436,7 @@ var resolveFilter = null;
 var compatUtils = null;
 var DeprecationTypes = null;
 
-// node_modules/.pnpm/@vue+runtime-dom@3.5.5/node_modules/@vue/runtime-dom/dist/runtime-dom.esm-bundler.js
+// node_modules/@vue/runtime-dom/dist/runtime-dom.esm-bundler.js
 var policy = void 0;
 var tt = typeof window !== "undefined" && window.trustedTypes;
 if (tt) {
@@ -12245,7 +12250,7 @@ var initDirectivesForSSR = () => {
   }
 };
 
-// node_modules/.pnpm/vue@3.5.5/node_modules/vue/dist/vue.runtime.esm-bundler.js
+// node_modules/vue/dist/vue.runtime.esm-bundler.js
 function initDev() {
   {
     initCustomFormatter();
@@ -12437,7 +12442,7 @@ export {
 
 @vue/shared/dist/shared.esm-bundler.js:
   (**
-  * @vue/shared v3.5.5
+  * @vue/shared v3.5.6
   * (c) 2018-present Yuxi (Evan) You and Vue contributors
   * @license MIT
   **)
@@ -12445,14 +12450,14 @@ export {
 
 @vue/reactivity/dist/reactivity.esm-bundler.js:
   (**
-  * @vue/reactivity v3.5.5
+  * @vue/reactivity v3.5.6
   * (c) 2018-present Yuxi (Evan) You and Vue contributors
   * @license MIT
   **)
 
 @vue/runtime-core/dist/runtime-core.esm-bundler.js:
   (**
-  * @vue/runtime-core v3.5.5
+  * @vue/runtime-core v3.5.6
   * (c) 2018-present Yuxi (Evan) You and Vue contributors
   * @license MIT
   **)
@@ -12460,7 +12465,7 @@ export {
 
 @vue/runtime-dom/dist/runtime-dom.esm-bundler.js:
   (**
-  * @vue/runtime-dom v3.5.5
+  * @vue/runtime-dom v3.5.6
   * (c) 2018-present Yuxi (Evan) You and Vue contributors
   * @license MIT
   **)
@@ -12468,9 +12473,9 @@ export {
 
 vue/dist/vue.runtime.esm-bundler.js:
   (**
-  * vue v3.5.5
+  * vue v3.5.6
   * (c) 2018-present Yuxi (Evan) You and Vue contributors
   * @license MIT
   **)
 */
-//# sourceMappingURL=chunk-Q377CI2N.js.map
+//# sourceMappingURL=chunk-AVLKINWM.js.map

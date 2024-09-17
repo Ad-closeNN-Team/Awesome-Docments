@@ -4,7 +4,7 @@ layout: home
 
 hero:
   name: "Awesome Docments"
-  text: "一个极为普通的教程存放地"
+  text: "极为普通的教程存放地"
   tagline: 无用 · 普通
   actions:
     - theme: brand
@@ -12,14 +12,14 @@ hero:
       link: /docs/home
     - theme: alt
       text: 在 GitHub 上查看
-      link: /api-examples
+      link: https://github.com/Ad-closeNN-Team/Awesome-Docments
 
 features:
-  - title: Feature A
-    details: Lorem ipsum dolor sit amet, consectetur adipiscing elit
-  - title: Feature B
-    details: Lorem ipsum dolor sit amet, consectetur adipiscing elit
-  - title: Feature C
-    details: Lorem ipsum dolor sit amet, consectetur adipiscing elit
+  - title: 全部教程
+    details: 查看这里收录的所有教程
+    link: /docs/home
+  - title: 团队页面
+    details: 查看团队成员
+    link: /team/members
 ---
 
