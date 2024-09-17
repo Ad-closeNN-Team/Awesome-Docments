@@ -5,7 +5,7 @@ export default defineConfig({
   title: "Awesome Docments",
   description: "极为普通的教程存放地",
   base: '/Awesome-Docments/',
-  head: [['link', { rel: 'icon', href: 'https://raw.githubusercontent.com/Ad-closeNN-Team/Awesome-Docments/main/docs/thinking.svg' }]],
+  head: [['link', { rel: 'icon', href: 'https://cdn.jsdelivr.net/gh/Ad-closeNN-Team/Awesome-Docments/docs/thinking.svg' }]],
   themeConfig: {
     // https://vitepress.dev/reference/default-theme-config
     nav: [
@@ -64,7 +64,7 @@ export default defineConfig({
     search: {
       provider: 'local',
     },
-    logo: 'https://raw.githubusercontent.com/Ad-closeNN-Team/Awesome-Docments/main/docs/thinking.svg'
+    logo: 'https://cdn.jsdelivr.net/gh/Ad-closeNN-Team/Awesome-Docments/docs/thinking.svg'
   },
   lastUpdated: true
 })
