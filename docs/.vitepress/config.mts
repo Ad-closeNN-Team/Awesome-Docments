@@ -64,7 +64,7 @@ export default defineConfig({
     search: {
       provider: 'local',
     },
-    logo: '/Awesome-Docments/docs/thinking.svg'
+    logo: '../Awesome-Docments/docs/thinking.svg'
   },
   lastUpdated: true
 })
