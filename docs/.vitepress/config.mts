@@ -5,7 +5,7 @@ export default defineConfig({
   title: "Awesome Docments",
   description: "极为普通的教程存放地",
   base: '/Awesome-Docments/',
-  head: [['link', { rel: 'icon', href: '../favicon.ico' }]],
+  head: [['link', { rel: 'icon', href: '/Awesome-Docments/docs/favicon.ico' }]],
   themeConfig: {
     // https://vitepress.dev/reference/default-theme-config
     nav: [
